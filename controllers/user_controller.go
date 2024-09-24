@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/userAdityaa/bookmark-backend/models"
@@ -53,7 +52,6 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println(req)
 		var user models.User
 		if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
@@ -63,6 +61,14 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
-		json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
+		token, err := utils.GenerateToken(user.ID, user.Email)
+		if err != nil {
+			http.Error(w, "Could not generate token", http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "Login successful",
+			"token":   token,
+		})
 	}
 }
