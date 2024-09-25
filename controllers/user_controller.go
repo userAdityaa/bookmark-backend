@@ -10,9 +10,10 @@ import (
 )
 
 type RegisterRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	ProfileImage string `json:"profile_image"`
 }
 
 type LoginRequest struct {
@@ -32,9 +33,10 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, "Could not hash password", http.StatusInternalServerError)
 		}
 		user := models.User{
-			Username: req.Username,
-			Email:    req.Email,
-			Password: hashedPassword,
+			Username:     req.Username,
+			Email:        req.Email,
+			Password:     hashedPassword,
+			ProfileImage: req.ProfileImage,
 		}
 		if err := db.Create(&user).Error; err != nil {
 			http.Error(w, "Could not create user", http.StatusInternalServerError)
